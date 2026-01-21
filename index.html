@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Character encoding (supports most languages/symbols correctly) -->
+  <meta charset="UTF-8" />
+
+  <!-- Makes the layout responsive on mobile devices -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Browser tab title -->
+  <title>UniConnect - Student Management System</title>
+
+  <!-- External CSS file for all styling -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- =========================================================
+       TOP NAVIGATION BAR (visible on all pages)
+       - Contains the brand/logo + navigation buttons.
+       - Buttons use data-page to tell index.js which section to show.
+       - Some buttons are hidden until the user logs in.
+       ========================================================= -->
+  <header class="topbar">
+
+    <!-- Brand block (clicking can return user to Portal)
+         role="button" + tabindex makes this div accessible like a button -->
+    <div class="brand" role="button" tabindex="0" title="Go to Home">
+
+      <!-- Brand icon container (decorative) -->
+      <span class="brand-mark" aria-hidden="true">
+        <!-- Inline SVG icon reused across the site -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2l9 5-9 5-9-5 9-5z" stroke="currentColor" stroke-width="1.8" />
+          <path d="M3 7v8l9 5 9-5V7" stroke="currentColor" stroke-width="1.8" />
+        </svg>
+      </span>
+
+      <!-- Brand text (app name + tagline) -->
+      <div class="brand-text">
+        <div class="brand-name">UniConnect</div>
+        <div class="brand-tag">Parents • Teachers • Portal</div>
+      </div>
+    </div>
+
+    <!-- Navigation buttons
+         - index.js will show/hide pages based on button clicks.
+         - "hidden" class means the button is not visible by default.
+         - After login, JS typically hides Login/Sign Up and shows portal buttons. -->
+    <nav class="nav">
+
+      <!-- Public button: Home landing page -->
+      <button id="home-link" data-page="home-public" class="nav-btn">Home</button>
+
+      <!-- Portal buttons (ONLY after login) -->
+      <button id="students-link" data-page="search-students" class="nav-btn hidden">Students</button>
+      <button id="programs-link" data-page="courses" class="nav-btn hidden">Programs</button>
+      <button id="about-link" data-page="about" class="nav-btn hidden">About</button>
+
+      <!-- Auth buttons (ONLY before login) -->
+      <button id="login-link" data-page="login" class="nav-btn">Login</button>
+      <button id="signup-link" data-page="signup" class="nav-btn primary">Sign Up</button>
+
+      <!-- Logout (ONLY after login) -->
+      <button id="logout-btn" class="nav-btn danger hidden">Logout</button>
+    </nav>
+  </header>
+
+  <!-- =========================================================
+       MAIN CONTAINER
+       Each "page" is a <section> with an id.
+       JS swaps visibility by adding/removing the "hidden" class.
+       ========================================================= -->
+  <main class="container">
+
+    <!-- =========================================================
+         HOME (Public Landing Page)
+         - This is the first page shown to users.
+         - Has a hero section + overview features.
+         ========================================================= -->
+    <section id="home-public" class="page">
+      <div class="hero-wrap">
+
+        <!-- Hero LEFT: title and description -->
+        <div class="hero-copy">
+          <div class="pill">Secure portal for parents and teachers</div>
+
+          <h1 class="hero-title">
+            UniConnect Student Management System
+          </h1>
+
+          <p class="hero-sub">
+            UniConnect centralizes student profiles, guardian contacts, and program information.
+            Built for clear records, fast search, and secure access.
+          </p>
+
+          <!-- Hero CTA buttons: JS reads data-page and navigates -->
+          <div class="hero-actions">
+            <button class="btn primary big" data-page="signup">Create Account</button>
+            <button class="btn ghost big" data-page="login">Login</button>
+          </div>
+
+          <!-- Quick “feature chips” for visual summary -->
+          <div class="trust">
+            <div class="trust-title">Core features</div>
+            <div class="trust-strip">
+              <span class="chip">Student records</span>
+              <span class="chip">Guardian contacts</span>
+              <span class="chip">University programs</span>
+              <span class="chip">Quick search</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero RIGHT: image + small overlay card -->
+        <div class="hero-media">
+
+          <!-- Hero image (static file here; could be swapped dynamically if desired) -->
+          <img src="images/campus.jpg" alt="University campus" />
+
+          <!-- Overlay card on top of image -->
+          <div class="hero-media-overlay">
+            <div class="overlay-card">
+              <div class="overlay-title">One place for key information</div>
+              <div class="overlay-sub">Profiles • Contacts • Programs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overview section: explains what the system does -->
+      <section class="section">
+        <div class="section-head">
+          <h2>Overview</h2>
+          <p>
+            UniConnect is designed to keep student information structured and easy to scan,
+            across both phone and desktop screens.
+          </p>
+        </div>
+
+        <!-- Feature cards grid -->
+        <div class="feature-grid">
+          <article class="feature">
+            <div class="kicker">Records</div>
+            <h3>Centralized profiles</h3>
+            <p>Student ID, program, contacts, and guardian details in one view.</p>
+          </article>
+
+          <article class="feature">
+            <div class="kicker">Search</div>
+            <h3>Instant filtering</h3>
+            <p>Search by name, ID, program, email, phone, or status.</p>
+          </article>
+
+          <article class="feature">
+            <div class="kicker">Programs</div>
+            <h3>University catalog</h3>
+            <p>Browse a short list of university-level programs.</p>
+          </article>
+
+          <article class="feature">
+            <div class="kicker">Access</div>
+            <h3>Login protected</h3>
+            <p>Portal pages are shown only after successful login.</p>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <!-- =========================================================
+         PORTAL (Private Home - shown after login)
+         - Displays welcome message + summary cards + quick actions
+         ========================================================= -->
+    <section id="portal" class="page hidden">
+
+      <!-- Portal header: user greeting + last login info -->
+      <div class="portal-head">
+        <div>
+          <h1 id="portal-title" class="title-strong">Portal</h1>
+          <p class="muted">Welcome back. Use the buttons below to navigate.</p>
+
+          <!-- Filled by JS (e.g., "Last login: ...") -->
+          <p class="muted" id="last-login"></p>
+        </div>
+      </div>
+
+      <!-- Quick action buttons -->
+      <div class="portal-actions-bar">
+        <button class="btn primary" data-page="search-students">Students</button>
+        <button class="btn ghost" data-page="courses">Programs</button>
+        <button class="btn ghost" data-page="about">About</button>
+      </div>
+
+      <!-- Portal info cards (counts/statuses) -->
+      <div class="portal-grid">
+        <div class="portal-card">
+          <div class="portal-k">Student Records</div>
+          <!-- Could be set dynamically in JS -->
+          <div class="portal-v" id="student-count">25</div>
+          <div class="portal-s">Profiles available for demo</div>
+        </div>
+
+        <div class="portal-card">
+          <div class="portal-k">Programs</div>
+          <div class="portal-v">8</div>
+          <div class="portal-s">University-level catalog</div>
+        </div>
+
+        <div class="portal-card">
+          <div class="portal-k">Search</div>
+          <div class="portal-v">Live</div>
+          <div class="portal-s">Filters results instantly</div>
+        </div>
+
+        <div class="portal-card">
+          <div class="portal-k">Account</div>
+          <!-- Filled by JS after login (e.g., user's name/email) -->
+          <div class="portal-v" id="portal-user">User</div>
+          <div class="portal-s">Logged in successfully</div>
+        </div>
+      </div>
+
+      <!-- Small split section: tip text + image -->
+      <div class="mini-split">
+        <div class="mini-left">
+          <h2 class="title-strong">Quick tip</h2>
+          <p class="muted">
+            Use the Students page when you need to search. Programs is a quick catalog.
+            About explains the goal of the portal.
+          </p>
+          <button class="btn primary" data-page="search-students">Go to Students</button>
+        </div>
+
+        <div class="mini-right">
+          <img src="images/students.jpg" alt="University students collaborating" />
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         LOGIN PAGE (Private access entry)
+         - Uses email + password inputs
+         - JS validates and toggles visibility on success
+         ========================================================= -->
+    <section id="login" class="page hidden">
+      <div class="auth">
+        <h2 class="title-strong">Login</h2>
+        <p class="muted">Enter your credentials to access the portal.</p>
+
+        <!-- User credentials -->
+        <input type="email" id="login-email" placeholder="Email" />
+        <input type="password" id="login-password" placeholder="Password" />
+
+        <!-- Login action button (JS listens to this id) -->
+        <button id="login-btn" class="btn primary big">Login</button>
+
+        <!-- Error messages displayed here by JS -->
+        <p id="login-error" class="error"></p>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SIGN UP PAGE
+         - Collects user details for demo account creation
+         - JS would store/validate this (e.g., localStorage in a demo)
+         ========================================================= -->
+    <section id="signup" class="page hidden">
+      <div class="auth">
+        <h2 class="title-strong">Sign Up</h2>
+        <p class="muted">Create a new account.</p>
+
+        <!-- Registration fields -->
+        <input type="text" id="signup-name" placeholder="Full Name" />
+        <input type="email" id="signup-email" placeholder="Email" />
+        <input type="password" id="signup-password" placeholder="Password" />
+        <input type="tel" id="signup-phone" placeholder="Phone" />
+        <input type="date" id="signup-dob" placeholder="Date of Birth" />
+
+        <!-- Signup action button (JS listens to this id) -->
+        <button id="signup-btn" class="btn primary big">Sign Up</button>
+
+        <!-- Error messages displayed here by JS -->
+        <p id="signup-error" class="error"></p>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         STUDENTS PAGE
+         - Contains search bar + live results count
+         - Student cards are static sample data for the demo
+         - JS can filter cards based on typed text
+         ========================================================= -->
+    <section id="search-students" class="page hidden">
+      <div class="page-head">
+        <h2 class="title-strong">Student Search</h2>
+        <p class="muted">Search by name, ID, program, guardian, email, phone, address, or status.</p>
+      </div>
+
+      <!-- Search input + results counter -->
+      <div class="search-row">
+        <input type="text" id="student-search" placeholder="Type to search..." />
+        <div class="result-pill"><span id="result-count">0</span> results</div>
+      </div>
+
+      <!-- Student cards list
+           NOTE: Search can be implemented by checking each card's textContent. -->
+      <div id="student-results" class="cards students">
+
+        <!-- Student Card #1 -->
+        <div class="card student-card">
+          <div class="row">
+            <h3>John Doe</h3>
+            <span class="badge">Active</span>
+          </div>
+          <p><strong>ID:</strong> S1001</p>
+          <p><strong>Program:</strong> BSc Computer Science</p>
+          <p><strong>Email:</strong> john@example.com</p>
+          <p><strong>Phone:</strong> 123-456-7890</p>
+          <p><strong>DOB:</strong> 2000-05-12</p>
+          <p><strong>Guardian:</strong> Mark Doe • 055-123-1111</p>
+          <p><strong>Address:</strong> Al Barsha, Dubai</p>
+        </div>
+
+        <!-- Student Card #2 -->
+        <div class="card student-card">
+          <div class="row"><h3>Jane Smith</h3><span class="badge">Active</span></div>
+          <p><strong>ID:</strong> S1002</p><p><strong>Program:</strong> BSc Mathematics</p>
+          <p><strong>Email:</strong> jane@example.com</p><p><strong>Phone:</strong> 234-567-8901</p>
+          <p><strong>DOB:</strong> 2001-07-23</p><p><strong>Guardian:</strong> Sarah Smith • 055-234-2222</p>
+          <p><strong>Address:</strong> Deira, Dubai</p>
+        </div>
+
+        <!-- Student Card #3 -->
+        <div class="card student-card">
+          <div class="row"><h3>Michael Brown</h3><span class="badge neutral">On Hold</span></div>
+          <p><strong>ID:</strong> S1003</p><p><strong>Program:</strong> BSc Physics</p>
+          <p><strong>Email:</strong> michael@example.com</p><p><strong>Phone:</strong> 345-678-9012</p>
+          <p><strong>DOB:</strong> 2000-12-01</p><p><strong>Guardian:</strong> David Brown • 055-345-3333</p>
+          <p><strong>Address:</strong> Mirdif, Dubai</p>
+        </div>
+
+        <!-- Additional student cards continue...
+             Each card follows the same structure for consistent display + easier filtering. -->
+
+        <div class="card student-card">
+          <div class="row"><h3>Emily Johnson</h3><span class="badge">Active</span></div>
+          <p><strong>ID:</strong> S1004</p><p><strong>Program:</strong> BSc Chemistry</p>
+          <p><strong>Email:</strong> emily@example.com</p><p><strong>Phone:</strong> 456-789-0123</p>
+          <p><strong>DOB:</strong> 2002-03-15</p><p><strong>Guardian:</strong> Linda Johnson • 055-456-4444</p>
+          <p><strong>Address:</strong> JLT, Dubai</p>
+        </div>
+
+        <div class="card student-card">
+          <div class="row"><h3>David Lee</h3><span class="badge">Active</span></div>
+          <p><strong>ID:</strong> S1005</p><p><strong>Program:</strong> BSc Biomedical Science</p>
+          <p><strong>Email:</strong> david@example.com</p><p><strong>Phone:</strong> 567-890-1234</p>
+          <p><strong>DOB:</strong> 2001-08-20</p><p><strong>Guardian:</strong> Helen Lee • 055-567-5555</p>
+          <p><strong>Address:</strong> Al Nahda, Dubai</p>
+        </div>
+
+        <div class="card student-card">
+          <div class="row"><h3>Linda Wilson</h3><span class="badge">Active</span></div>
+          <p><strong>ID:</strong> S1006</p><p><strong>Program:</strong> BSc Data Science</p>
+          <p><strong>Email:</strong> linda@example.com</p><p><strong>Phone:</strong> 678-901-2345</p>
+          <p><strong>DOB:</strong> 2000-11-11</p><p><strong>Guardian:</strong> Thomas Wilson • 055-678-6666</p>
+          <p><strong>Address:</strong> Dubai Marina, Dubai</p>
+        </div>
+
+<div class="card student-card">
+  <div class="row"><h3>Robert Taylor</h3><span class="badge neutral">On Hold</span></div>
+  <p><strong>ID:</strong> S1007</p>
+  <p><strong>Program:</strong> BA Business Management</p>
+  <p><strong>Email:</strong> robert@example.com</p>
+  <p><strong>Phone:</strong> 789-012-3456</p>
+  <p><strong>DOB:</strong> 2002-02-28</p>
+  <p><strong>Guardian:</strong> Patricia Taylor • 055-789-7777</p>
+  <p><strong>Address:</strong> Bur Dubai, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Patricia Martinez</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1008</p>
+  <p><strong>Program:</strong> BA International Relations</p>
+  <p><strong>Email:</strong> patricia@example.com</p>
+  <p><strong>Phone:</strong> 890-123-4567</p>
+  <p><strong>DOB:</strong> 2001-06-10</p>
+  <p><strong>Guardian:</strong> Jose Martinez • 055-890-8888</p>
+  <p><strong>Address:</strong> Al Qusais, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>James Anderson</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1009</p>
+  <p><strong>Program:</strong> BSc Finance & Accounting</p>
+  <p><strong>Email:</strong> james@example.com</p>
+  <p><strong>Phone:</strong> 901-234-5678</p>
+  <p><strong>DOB:</strong> 2000-09-05</p>
+  <p><strong>Guardian:</strong> Mary Anderson • 055-901-9999</p>
+  <p><strong>Address:</strong> Karama, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Mary Thomas</h3><span class="badge neutral">On Hold</span></div>
+  <p><strong>ID:</strong> S1010</p>
+  <p><strong>Program:</strong> BEng Mechanical Engineering</p>
+  <p><strong>Email:</strong> mary@example.com</p>
+  <p><strong>Phone:</strong> 012-345-6789</p>
+  <p><strong>DOB:</strong> 2002-01-20</p>
+  <p><strong>Guardian:</strong> William Thomas • 055-012-1010</p>
+  <p><strong>Address:</strong> Business Bay, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>William Harris</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1011</p>
+  <p><strong>Program:</strong> BSc Computer Science</p>
+  <p><strong>Email:</strong> william@example.com</p>
+  <p><strong>Phone:</strong> 111-222-3333</p>
+  <p><strong>DOB:</strong> 2000-04-17</p>
+  <p><strong>Guardian:</strong> Barbara Harris • 055-111-1111</p>
+  <p><strong>Address:</strong> JVC, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Barbara Clark</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1012</p>
+  <p><strong>Program:</strong> BSc Psychology</p>
+  <p><strong>Email:</strong> barbara@example.com</p>
+  <p><strong>Phone:</strong> 222-333-4444</p>
+  <p><strong>DOB:</strong> 2001-12-30</p>
+  <p><strong>Guardian:</strong> Thomas Clark • 055-222-2222</p>
+  <p><strong>Address:</strong> Al Rigga, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Thomas Lewis</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1013</p>
+  <p><strong>Program:</strong> BSc Physics</p>
+  <p><strong>Email:</strong> thomas@example.com</p>
+  <p><strong>Phone:</strong> 333-444-5555</p>
+  <p><strong>DOB:</strong> 2002-05-05</p>
+  <p><strong>Guardian:</strong> Jennifer Lewis • 055-333-3333</p>
+  <p><strong>Address:</strong> Satwa, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Jennifer Walker</h3><span class="badge neutral">On Hold</span></div>
+  <p><strong>ID:</strong> S1014</p>
+  <p><strong>Program:</strong> BSc Chemistry</p>
+  <p><strong>Email:</strong> jennifer@example.com</p>
+  <p><strong>Phone:</strong> 444-555-6666</p>
+  <p><strong>DOB:</strong> 2000-08-28</p>
+  <p><strong>Guardian:</strong> Charles Walker • 055-444-4444</p>
+  <p><strong>Address:</strong> Al Warqa, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Charles Hall</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1015</p>
+  <p><strong>Program:</strong> BSc Biomedical Science</p>
+  <p><strong>Email:</strong> charles@example.com</p>
+  <p><strong>Phone:</strong> 555-666-7777</p>
+  <p><strong>DOB:</strong> 2001-03-22</p>
+  <p><strong>Guardian:</strong> Emily Hall • 055-555-5555</p>
+  <p><strong>Address:</strong> Dubai Silicon Oasis, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Ahmed Al Noor</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1016</p>
+  <p><strong>Program:</strong> BSc Data Science</p>
+  <p><strong>Email:</strong> ahmed@example.com</p>
+  <p><strong>Phone:</strong> 055-610-1111</p>
+  <p><strong>DOB:</strong> 2001-10-09</p>
+  <p><strong>Guardian:</strong> Khalid Al Noor • 055-610-2222</p>
+  <p><strong>Address:</strong> Al Quoz, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Aisha Rahman</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1017</p>
+  <p><strong>Program:</strong> BSc Mathematics</p>
+  <p><strong>Email:</strong> aisha@example.com</p>
+  <p><strong>Phone:</strong> 055-620-1111</p>
+  <p><strong>DOB:</strong> 2002-06-14</p>
+  <p><strong>Guardian:</strong> Rahman Ali • 055-620-2222</p>
+  <p><strong>Address:</strong> Al Nahda, Sharjah</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Omar Hassan</h3><span class="badge neutral">On Hold</span></div>
+  <p><strong>ID:</strong> S1018</p>
+  <p><strong>Program:</strong> BA International Relations</p>
+  <p><strong>Email:</strong> omar@example.com</p>
+  <p><strong>Phone:</strong> 055-630-1111</p>
+  <p><strong>DOB:</strong> 2000-02-19</p>
+  <p><strong>Guardian:</strong> Hassan Omar • 055-630-2222</p>
+  <p><strong>Address:</strong> Al Taawun, Sharjah</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Sophia Carter</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1019</p>
+  <p><strong>Program:</strong> BSc Psychology</p>
+  <p><strong>Email:</strong> sophia@example.com</p>
+  <p><strong>Phone:</strong> 055-640-1111</p>
+  <p><strong>DOB:</strong> 2001-04-02</p>
+  <p><strong>Guardian:</strong> Robert Carter • 055-640-2222</p>
+  <p><strong>Address:</strong> The Greens, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Daniel Kim</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1020</p>
+  <p><strong>Program:</strong> BSc Biomedical Science</p>
+  <p><strong>Email:</strong> daniel@example.com</p>
+  <p><strong>Phone:</strong> 055-650-1111</p>
+  <p><strong>DOB:</strong> 2002-09-11</p>
+  <p><strong>Guardian:</strong> Min Kim • 055-650-2222</p>
+  <p><strong>Address:</strong> Al Furjan, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Fatima Zahra</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1021</p>
+  <p><strong>Program:</strong> BSc Finance & Accounting</p>
+  <p><strong>Email:</strong> fatima@example.com</p>
+  <p><strong>Phone:</strong> 055-660-1111</p>
+  <p><strong>DOB:</strong> 2000-07-30</p>
+  <p><strong>Guardian:</strong> Zahra Fatima • 055-660-2222</p>
+  <p><strong>Address:</strong> Al Majaz, Sharjah</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Lucas Morgan</h3><span class="badge neutral">On Hold</span></div>
+  <p><strong>ID:</strong> S1022</p>
+  <p><strong>Program:</strong> BEng Mechanical Engineering</p>
+  <p><strong>Email:</strong> lucas@example.com</p>
+  <p><strong>Phone:</strong> 055-670-1111</p>
+  <p><strong>DOB:</strong> 2001-01-08</p>
+  <p><strong>Guardian:</strong> Emma Morgan • 055-670-2222</p>
+  <p><strong>Address:</strong> Al Nahda, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Noor Ibrahim</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1023</p>
+  <p><strong>Program:</strong> BSc Chemistry</p>
+  <p><strong>Email:</strong> noor@example.com</p>
+  <p><strong>Phone:</strong> 055-680-1111</p>
+  <p><strong>DOB:</strong> 2002-12-18</p>
+  <p><strong>Guardian:</strong> Ibrahim Noor • 055-680-2222</p>
+  <p><strong>Address:</strong> Al Qusais, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Grace Bennett</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1024</p>
+  <p><strong>Program:</strong> BSc Physics</p>
+  <p><strong>Email:</strong> grace@example.com</p>
+  <p><strong>Phone:</strong> 055-690-1111</p>
+  <p><strong>DOB:</strong> 2000-03-26</p>
+  <p><strong>Guardian:</strong> James Bennett • 055-690-2222</p>
+  <p><strong>Address:</strong> Al Safa, Dubai</p>
+</div>
+
+<div class="card student-card">
+  <div class="row"><h3>Yusuf Saleh</h3><span class="badge">Active</span></div>
+  <p><strong>ID:</strong> S1025</p>
+  <p><strong>Program:</strong> BA Business Management</p>
+  <p><strong>Email:</strong> yusuf@example.com</p>
+  <p><strong>Phone:</strong> 055-700-1111</p>
+  <p><strong>DOB:</strong> 2001-11-03</p>
+  <p><strong>Guardian:</strong> Saleh Yusuf • 055-700-2222</p>
+  <p><strong>Address:</strong> Al Twar, Dubai</p>
+</div>
+
+
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PROGRAMS PAGE
+         - A simple catalog list of university programs
+         - Structured as cards for consistent UI
+         ========================================================= -->
+    <section id="courses" class="page hidden">
+      <div class="page-head">
+        <h2 class="title-strong">University Programs</h2>
+        <p class="muted">A compact university-level catalog.</p>
+      </div>
+
+      <!-- Program list -->
+      <div class="cards">
+
+        <!-- Each program is a card with key details -->
+        <div class="card">
+          <h3>BSc Computer Science</h3>
+          <p><strong>Department:</strong> School of Computing</p>
+          <p><strong>Focus:</strong> Software Engineering, Databases, AI Foundations</p>
+          <p><strong>Duration:</strong> 3–4 years</p>
+        </div>
+
+        <div class="card">
+          <h3>BSc Data Science</h3>
+          <p><strong>Department:</strong> School of Computing</p>
+          <p><strong>Focus:</strong> Statistics, Machine Learning, Visualization</p>
+          <p><strong>Duration:</strong> 3–4 years</p>
+        </div>
+
+        <div class="card">
+          <h3>BEng Mechanical Engineering</h3>
+          <p><strong>Department:</strong> Faculty of Engineering</p>
+          <p><strong>Focus:</strong> Thermodynamics, CAD, Manufacturing</p>
+          <p><strong>Duration:</strong> 4 years</p>
+        </div>
+
+        <div class="card">
+          <h3>BA Business Management</h3>
+          <p><strong>Department:</strong> School of Business</p>
+          <p><strong>Focus:</strong> Strategy, Marketing, Operations</p>
+          <p><strong>Duration:</strong> 3 years</p>
+        </div>
+
+        <div class="card">
+          <h3>BSc Finance & Accounting</h3>
+          <p><strong>Department:</strong> School of Business</p>
+          <p><strong>Focus:</strong> Reporting, Audit, Corporate Finance</p>
+          <p><strong>Duration:</strong> 3 years</p>
+        </div>
+
+        <div class="card">
+          <h3>BSc Psychology</h3>
+          <p><strong>Department:</strong> Faculty of Social Sciences</p>
+          <p><strong>Focus:</strong> Research Methods, Cognitive Psychology</p>
+          <p><strong>Duration:</strong> 3 years</p>
+        </div>
+
+        <div class="card">
+          <h3>BA International Relations</h3>
+          <p><strong>Department:</strong> Faculty of Humanities</p>
+          <p><strong>Focus:</strong> Global Politics, Diplomacy, Policy</p>
+          <p><strong>Duration:</strong> 3 years</p>
+        </div>
+
+        <div class="card">
+          <h3>BSc Biomedical Science</h3>
+          <p><strong>Department:</strong> Faculty of Health Sciences</p>
+          <p><strong>Focus:</strong> Human Biology, Lab Practice, Ethics</p>
+          <p><strong>Duration:</strong> 3–4 years</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         ABOUT PAGE
+         - Explains the purpose of the portal
+         - Uses an image + cards for readability
+         ========================================================= -->
+    <section id="about" class="page hidden">
+      <div class="page-head">
+        <h2 class="title-strong">About UniConnect</h2>
+        <p class="muted">A student portal designed for parents and teachers.</p>
+      </div>
+
+      <!-- About hero: image + explanation text -->
+      <div class="about-hero">
+        <img
+          src="images/academics.jpg"
+          alt="Students holding cap"
+        />
+
+        <div class="about-hero-text">
+          <h3 class="title-strong">Why this portal exists</h3>
+          <p>
+            UniConnect was built to reduce the friction of locating student information.
+            In many situations, the problem isn’t the lack of data—it’s how hard it is to find it quickly.
+          </p>
+          <p>
+            The portal focuses on clear records, structured profiles, and simple navigation,
+            so parents and teachers can access the essentials without scrolling through clutter.
+          </p>
+        </div>
+      </div>
+
+      <!-- About info cards -->
+      <div class="about-grid">
+        <div class="card">
+          <h3>What it provides</h3>
+          <p>
+            The Students page presents a set of example profiles with consistent formatting.
+            The Programs page lists university-level programs and summaries.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>How access works</h3>
+          <p>
+            The landing page is public. Once a user logs in, UniConnect switches to the Portal view.
+            This demonstrates protected navigation and a clear separation between public and private pages.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Design choices</h3>
+          <p>
+            The interface uses a white background, soft borders, and minimal accent color.
+            The goal is to look professional and keep content readable.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Future improvements</h3>
+          <p>
+            A next step would be loading student records from a database instead of static cards,
+            and adding role-based permissions for teachers versus parents.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================
+       FOOTER (visible on all pages)
+       - Contains contact info, social links, and quick navigation
+       ========================================================= -->
+  <footer class="footer">
+    <div class="footer-inner">
+
+      <!-- Footer column 1: brand + short description -->
+      <div class="footer-col">
+        <div class="footer-brand">
+          <span class="footer-mark" aria-hidden="true">
+            <!-- Same SVG icon reused for consistent branding -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2l9 5-9 5-9-5 9-5z" stroke="currentColor" stroke-width="1.8" />
+              <path d="M3 7v8l9 5 9-5V7" stroke="currentColor" stroke-width="1.8" />
+            </svg>
+          </span>
+          <strong>UniConnect</strong>
+        </div>
+
+        <p class="muted">
+          Student management portal for parents and teachers—secure, fast, and easy to use.
+        </p>
+      </div>
+
+      <!-- Footer column 2: contact details -->
+      <div class="footer-col">
+        <h4>Contact Us</h4>
+        <ul>
+          <li>Email: <a href="mailto:uniconnect.support@email.com">uniconnect.support@email.com</a></li>
+          <li>Phone: <a href="tel:+971500000000">+971 50 000 0000</a></li>
+          <li>Office: Dubai, UAE</li>
+        </ul>
+      </div>
+
+      <!-- Footer column 3: social links (placeholders) -->
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <div class="social">
+          <a href="#" class="social-btn" aria-label="Instagram">Instagram</a>
+          <a href="#" class="social-btn" aria-label="LinkedIn">LinkedIn</a>
+          <a href="#" class="social-btn" aria-label="X">X</a>
+        </div>
+      </div>
+
+      <!-- Footer column 4: quick navigation buttons
+           - These buttons also use data-page, so JS can navigate -->
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><button class="linklike" data-page="home-public">Home</button></li>
+          <li><button class="linklike" data-page="login">Login</button></li>
+          <li><button class="linklike" data-page="signup">Sign Up</button></li>
+          <li><button class="linklike" data-page="portal">Portal</button></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Footer bottom line: dynamic year filled by JS -->
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> UniConnect. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <!-- External JS that:
+       - switches pages using data-page
+       - handles login/signup logic
+       - filters student cards
+       - updates dynamic fields (year, last-login, portal-user, etc.) -->
+  <script src="index.js"></script>
+</body>
+</html>
